@@ -56,8 +56,8 @@ resource "aws_launch_template" "activiti-app-launch-temp1" {
   user_data                            = base64encode(data.template_file.ecs_user_data.rendered)
   vpc_security_group_ids               = [aws_security_group.ecs_sg.id, aws_security_group.bastion-sg.id]
   instance_initiated_shutdown_behavior = "terminate"
-  disable_api_stop                     = false
-  disable_api_termination              = false
+  # disable_api_stop                     = false
+  # disable_api_termination              = false
   ebs_optimized                        = false
 
   iam_instance_profile {
