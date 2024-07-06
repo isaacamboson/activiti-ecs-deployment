@@ -1,0 +1,25 @@
+[
+    {
+      "name": "${app_name1}-app-container",
+      "image": "${app_image1}",
+      "memory": 512,
+      "essential": true,
+      "logConfiguration": {
+          "logDriver": "awslogs",
+          "options": {
+            "awslogs-create-group": "true",
+            "awslogs-group": "/ecs/${app_name1}-log-group-ecs",
+            "awslogs-region": "${aws_region1}",
+            "awslogs-stream-prefix": "${app_name1}-ecs"
+          }
+      },
+      "portMappings": [
+        { 
+            "name": "${app_name1}-app-container",
+            "containerPort": 8080,
+            "hostPort": 8080,
+            "protocol": "tcp"            
+        }
+      ]
+    }
+  ]
