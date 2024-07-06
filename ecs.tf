@@ -39,9 +39,9 @@ resource "aws_ecs_service" "activiti-service" {
 
   force_new_deployment = true
 
-  triggers = {
-    redeployment = timestamp()
-  }
+  # triggers = {
+  #   redeployment = timestamp()
+  # }
 
   load_balancer {
     target_group_arn = aws_lb_target_group.activiti-app-tg.arn
