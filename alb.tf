@@ -2,7 +2,6 @@
 
 resource "aws_lb" "lb" {
   name = "${local.ApplicationPrefix}-load-balancer"
-  # subnets = [aws_subnet.pub_subnets[1].id]
   subnets                          = [aws_subnet.pub_subnets[0].id, aws_subnet.pub_subnets[1].id]
   security_groups                  = [aws_security_group.lb-sg.id]
   internal                         = false
