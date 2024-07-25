@@ -6,32 +6,15 @@ resource "aws_security_group" "lb-sg" {
   description = "controls access to the LB"
   vpc_id      = aws_vpc.vpc_main.id
 
-  ingress {
-    protocol    = "tcp"
-    from_port   = 80
-    to_port     = 80
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  ingress {
-    protocol    = "tcp"
-    from_port   = 443
-    to_port     = 443
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  ingress {
-    protocol    = "tcp"
-    from_port   = 22
-    to_port     = 22
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  ingress {
-    protocol    = "tcp"
-    from_port   = 8080
-    to_port     = 8080
-    cidr_blocks = ["0.0.0.0/0"]
+  #dynamic block for allowing ingress traffic for allowing ports 80, 443, 8080, 22
+  dynamic "ingress" {
+    for_each = local.inbound_ports
+    content {
+      from_port       = ingress.value
+      to_port         = ingress.value
+      protocol        = "tcp"
+      cidr_blocks     = ["0.0.0.0/0"]
+    }
   }
 
   egress {
@@ -53,28 +36,15 @@ resource "aws_security_group" "ecs_sg" {
   description = "allow inbound access from the LB only for EC2 in cluster"
   vpc_id      = aws_vpc.vpc_main.id
 
-  ingress {
-    description     = "Allow ingress traffic from ALB on HTTP port 80"
-    protocol        = "tcp"
-    from_port       = 80
-    to_port         = 80
-    security_groups = [aws_security_group.lb-sg.id, aws_security_group.bastion-sg.id]
-  }
-
-  ingress {
-    description     = "Allow ingress traffic from ALB on HTTPS port 443"
-    protocol        = "tcp"
-    from_port       = 443
-    to_port         = 443
-    security_groups = [aws_security_group.lb-sg.id, aws_security_group.bastion-sg.id]
-  }
-
-  ingress {
-    description     = "Allow ingress traffic from ALB on port 8080"
-    protocol        = "tcp"
-    from_port       = 8080
-    to_port         = 8080
-    security_groups = [aws_security_group.lb-sg.id, aws_security_group.bastion-sg.id]
+  #dynamic block for allowing ingress traffic for allowing ports 80, 443, 8080, 22
+  dynamic "ingress" {
+    for_each = local.inbound_ports
+    content {
+      from_port       = ingress.value
+      to_port         = ingress.value
+      protocol        = "tcp"
+      security_groups = [aws_security_group.lb-sg.id, aws_security_group.bastion-sg.id]
+    }
   }
 
   ingress {
@@ -82,14 +52,6 @@ resource "aws_security_group" "ecs_sg" {
     protocol        = "tcp"
     from_port       = 1024
     to_port         = 65535
-    security_groups = [aws_security_group.lb-sg.id, aws_security_group.bastion-sg.id]
-  }
-
-  ingress {
-    description     = "Allow SSH ingress traffic from bastion host"
-    protocol        = "tcp"
-    from_port       = 22
-    to_port         = 22
     security_groups = [aws_security_group.lb-sg.id, aws_security_group.bastion-sg.id]
   }
 
@@ -120,22 +82,6 @@ resource "aws_security_group" "bastion-sg" {
     description = "Allow SSH"
     from_port   = 22
     to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"] ## The IP range could be limited to the developers IP addresses if they are fix
-  }
-
-  ingress {
-    description = "Allow HTTP"
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"] ## The IP range could be limited to the developers IP addresses if they are fix
-  }
-
-  ingress {
-    description = "Allow HTTPS"
-    from_port   = 443
-    to_port     = 443
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"] ## The IP range could be limited to the developers IP addresses if they are fix
   }
